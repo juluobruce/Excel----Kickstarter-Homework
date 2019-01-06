@@ -1,0 +1,249 @@
+Sub Easy()
+'declaration of variables 
+Dim x As Double
+Dim Total As Double
+Dim TotalV As Double
+
+'headers
+cells (1,9).value = cells(1,1).value 
+cells(1,10).value = "Total Stock Value"
+
+x= 2
+cells (x,9).value = cells(x,1)
+
+x = 2
+Cells(x, 9).Value = Cells(x, 1).Value
+
+' looping -- counting from last row used 
+LastRow = Cells(Rows.Count, 1).End(xlUp).Row
+
+    For i = 2 To LastRow
+
+If Cells(i, 1).Value = Cells(x, 9).Value Then
+
+TotalV = TotalV + Cells(i, 7).Value
+
+Else
+     
+Cells(x, 10).Value = TotalV
+
+TotalV = Cells(i, 7).Value
+
+x = x + 1
+Cells(x, 9).Value = Cells(i, 1).Value
+
+End If
+    
+    Next i
+
+Cells(x, 10).Value = TotalV
+
+End Sub
+
+
+Sub Moderate 
+
+'declaring variables
+
+Dim DateOpen As Variant
+Dim DateClose As Variant
+Dim i As Double
+Dim x As Double
+
+'headers
+Cells(1, 9).Value = "Ticker"
+Cells(1, 10).Value = "Yearly Change"
+Cells(1, 11).Value = "Percent Change"
+Cells(1, 12).Value = "Total Stock Volume"
+x = 2
+i = 2
+
+Cells(x, 9).Value = Cells(x, 1).Value
+
+DateOpen = Cells(i, 3).Value
+
+'looping through from row down up --
+' finding the values 
+'colors for the cell
+
+LastRow = Cells(Rows.Count, 1).End(xlUp).Row
+
+For i = 2 To LastRow
+
+If Cells(i, 1).Value = Cells(x, 9).Value Then
+TotalV = TotalV + Cells(i, 7).Value
+DateClose = Cells(i, 6).Value
+     Else
+
+     Cells(x, 10).Value = DateClose - DateOpen
+
+                If DateClose <= 0 Then
+            
+                    Cells(x, 11).Value = 0
+                    
+                    Else
+                    Cells(x, 11).Value = (DateClose / DateOpen) - 1
+                    
+                End If
+                
+                    Cells(x, 11).Style = "Percent"
+                        
+            If Cells(x, 10).Value >= 0 Then
+                                
+                Cells(x, 10).Interior.ColorIndex = 4
+                                    
+                    Else
+                                
+                Cells(x, 10).Interior.ColorIndex = 3
+                    
+            End If
+                
+Cells(x, 12).Value = TotalV
+
+DateOpen = Cells(i, 3).Value
+
+TotalV = Cells(i, 7).Value
+x = x + 1
+Cells(x, 9).Value = Cells(i, 1).Value
+
+End If
+
+Next i
+
+Cells(x, 10).Value = DateClose - DateOpen
+
+                If DateClose <= 0 Then
+            
+                    Cells(x, 11).Value = 0
+                    
+                    Else
+                    Cells(x, 11).Value = (DateMaxClose / DateMinOpen) - 1
+                    
+                End If
+                
+                    Cells(x, 11).Style = "Percent"
+                        
+            If Cells(x, 10).Value >= 0 Then
+                                
+                Cells(x, 10).Interior.ColorIndex = 4
+                                    
+                    Else
+                                
+                Cells(x, 10).Interior.ColorIndex = 3
+                    
+            End If
+                
+Cells(x, 12).Value = TotalV
+
+Cells(1, 1).Select
+
+End Sub
+
+
+
+Sub Final()
+    ' looping through the sheets
+Dim WS As Worksheet
+    For Each WS In ActiveWorkbook.Worksheets
+    WS.Activate
+
+        'For the last row
+        LastRow = WS.Cells(Rows.Count, 1).End(xlUp).Row
+
+    'declaration of variables
+        Dim Open_Price As Double
+        Dim Close_Price As Double
+        Dim Yearly_Change As Double
+        Dim Ticker_Name As String
+        Dim Percent_Change As Double
+        Dim Volume As Double
+        Volume = 0
+        Dim Row As Double
+        Row = 2
+        Dim Column As Integer
+        Column = 1
+        Dim i As Long
+        
+        'Headers
+        Cells(1, "I").Value = "Ticker"
+        Cells(1, "J").Value = "Yearly Change"
+        Cells(1, "K").Value = "Percent Change"
+        Cells(1, "L").Value = "Total Stock Volume"
+
+        
+        'Setting the Initial Open Price
+        Open_Price = Cells(2, Column + 2).Value
+
+         ' Looping through all ticker symbol
+        
+        For i = 2 To LastRow
+         ' Checking if  within the same ticker symbol or not
+            If Cells(i + 1, Column).Value <> Cells(i, Column).Value Then
+                'Ticker name
+                Ticker_Name = Cells(i, Column).Value
+                Cells(Row, Column + 8).Value = Ticker_Name
+                'Close Price
+                Close_Price = Cells(i, Column + 5).Value
+                'Yearly Change
+                Yearly_Change = Close_Price - Open_Price
+                Cells(Row, Column + 9).Value = Yearly_Change
+                'Percent Change
+                If (Open_Price = 0 And Close_Price = 0) Then
+                    Percent_Change = 0
+                ElseIf (Open_Price = 0 And Close_Price <> 0) Then
+                    Percent_Change = 1
+                Else
+                    Percent_Change = Yearly_Change / Open_Price
+                    Cells(Row, Column + 10).Value = Percent_Change
+                    Cells(Row, Column + 10).NumberFormat = "0.00%"
+                End If
+                'Total Vol
+                Volume = Volume + Cells(i, Column + 6).Value
+                Cells(Row, Column + 11).Value = Volume
+                ' Summary table row
+                Row = Row + 1
+                ' Open Price
+                ' Open_Price = Cells(i + 1, Column + 2)
+                ' Volumn Total
+                Volume = 0
+            Else
+                Volume = Volume + Cells(i, Column + 6).Value
+            End If
+        Next i
+        
+        'Last Row of Yearly Change per WS
+        YCLastRow = WS.Cells(Rows.Count, Column + 8).End(xlUp).Row
+        'Cell Colors
+        For j = 2 To YCLastRow
+            If (Cells(j, Column + 9).Value > 0 Or Cells(j, Column + 9).Value = 0) Then
+                Cells(j, Column + 9).Interior.ColorIndex = 10
+            ElseIf Cells(j, Column + 9).Value < 0 Then
+                Cells(j, Column + 9).Interior.ColorIndex = 3
+            End If
+        Next j
+        
+        ' For The Greatest % Increase, % Decrease, and Total Volume
+        Cells(2, Column + 14).Value = "Greatest % Increase"
+        Cells(3, Column + 14).Value = "Greatest % Decrease"
+        Cells(4, Column + 14).Value = "Greatest Total Volume"
+        Cells(1, Column + 15).Value = "Ticker"
+        Cells(1, Column + 16).Value = "Value"
+        ' Looking through each rows to find the greatest value and its associate ticker
+        For Z = 2 To YCLastRow
+            If Cells(Z, Column + 10).Value = Application.WorksheetFunction.Max(WS.Range("K2:K" & YCLastRow)) Then
+                Cells(2, Column + 15).Value = Cells(Z, Column + 8).Value
+                Cells(2, Column + 16).Value = Cells(Z, Column + 10).Value
+                Cells(2, Column + 16).NumberFormat = "0.00%"
+            ElseIf Cells(Z, Column + 10).Value = Application.WorksheetFunction.Min(WS.Range("K2:K" & YCLastRow)) Then
+                Cells(3, Column + 15).Value = Cells(Z, Column + 8).Value
+                Cells(3, Column + 16).Value = Cells(Z, Column + 10).Value
+                Cells(3, Column + 16).NumberFormat = "0.00%"
+            ElseIf Cells(Z, Column + 11).Value = Application.WorksheetFunction.Max(WS.Range("L2:L" & YCLastRow)) Then
+                Cells(4, Column + 15).Value = Cells(Z, Column + 8).Value
+                Cells(4, Column + 16).Value = Cells(Z, Column + 11).Value
+            End If
+        Next Z
+        
+    Next WS
+        
+End Sub
